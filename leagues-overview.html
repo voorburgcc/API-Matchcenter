@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KNCB Leagues Overview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #1a5276;
+            border-bottom: 2px solid #1a5276;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #1a5276;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e6f7ff;
+        }
+        a {
+            color: #2980b9;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .info {
+            background-color: #e6f7ff;
+            border-left: 4px solid #2980b9;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        .error {
+            background-color: #ffebee;
+            border-left: 4px solid #c62828;
+            padding: 15px;
+            margin: 20px 0;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>KNCB Leagues Overview 2025</h1>
+        
+        <div class="info">
+            <p><strong>Important:</strong> This page shows all leagues in the KNCB system for the 2025 season. 
+            Click on a league name to view all matches in that league.</p>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>League ID</th>
+                    <th>Matchcentre Link</th>
+                    <th>League Name</th>
+                    <th>Format</th>
+                    <th>Matches</th>
+                    <th>Actions</th>
+                    <th>API Endpoint</th>
+                </tr>
+            </thead>
+            <tbody id="leagues-table-body">
+                <tr class="loading">
+                    <td colspan="7">Loading leagues data...</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div id="error-container" class="error" style="display: none;">
+            <p><strong>Error:</strong> <span id="error-message">Could not load league data.</span></p>
+        </div>
+
+        <div class="info">
+            <p><strong>API Information:</strong> You can also access all grades (leagues) directly via the API endpoint:<br>
+            <a href="https://api.resultsvault.co.uk/rv/134453/grades/?apiid=1002&seasonId=19" target="_blank">https://api.resultsvault.co.uk/rv/134453/grades/?apiid=1002&seasonId=19</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tableBody = document.getElementById('leagues-table-body');
+            const errorContainer = document.getElementById('error-container');
+            const errorMessage = document.getElementById('error-message');
+            
+            // API endpoint for fetching leagues data
+            const apiUrl = 'https://api.resultsvault.co.uk/rv/134453/grades/?apiid=1002&seasonId=19';
+            
+            // Function to determine the format category based on league name
+            function determineFormat(gradeName) {
+                gradeName = gradeName.toLowerCase();
+                
+                if (gradeName.includes('twenty20') || gradeName.includes('t20')) {
+                    return gradeName.includes('vrouwen') ? 'Women T20' : 'T20';
+                } else if (gradeName.includes('vrouwen')) {
+                    return 'Women';
+                } else if (gradeName.includes('u11') || gradeName.includes('u13') || 
+                           gradeName.includes('u15') || gradeName.includes('u17')) {
+                    return 'Youth';
+                } else if (gradeName.includes('bedrijfs')) {
+                    return 'Corporate';
+                } else {
+                    return 'Standard';
+                }
+            }
+            
+            // Function to create a table row for a league
+            function createLeagueRow(league) {
+                const row = document.createElement('tr');
+                
+                const idCell = document.createElement('td');
+                idCell.textContent = league.gradeId;
+
+                const matchcentreCell = document.createElement('td');
+                const matchcentreLink = document.createElement('a');
+                matchcentreLink.href = `https://matchcentre.kncb.nl/matches/?entity=134453&grade=${league.gradeId}&season=19`;
+                matchcentreLink.textContent = 'Matchcentre';
+                matchcentreLink.target = '_blank';
+                matchcentreCell.appendChild(matchcentreLink);
+
+                const nameCell = document.createElement('td');
+                nameCell.textContent = league.gradeName;
+                
+                const formatCell = document.createElement('td');
+                formatCell.textContent = determineFormat(league.gradeName);
+                
+                const matchesCell = document.createElement('td');
+                matchesCell.textContent = league.matchCount || 'Unknown';
+                
+                const actionsCell = document.createElement('td');
+                const link = document.createElement('a');
+                link.href = `matches-overview.html?gradeId=${league.gradeId}`;
+                link.textContent = 'View Matches';
+                link.target = '_blank';
+                actionsCell.appendChild(link);
+                
+                const sourceCell = document.createElement('td');
+                const sourceLink = document.createElement('a');
+                sourceLink.href = `https://api.resultsvault.co.uk/rv/134453/matches/?apiid=1002&seasonid=19&gradeid=${league.gradeId}&action=ors&maxrecs=1000&strmflg=1`;
+                sourceLink.textContent = 'API Endpoint';
+                sourceLink.target = '_blank';
+                sourceCell.appendChild(sourceLink);
+                
+                row.appendChild(idCell);
+                row.appendChild(matchcentreCell);
+                row.appendChild(nameCell);
+                row.appendChild(formatCell);
+                row.appendChild(matchesCell);
+                row.appendChild(actionsCell);
+                row.appendChild(sourceCell);
+                
+                return row;
+            }
+            
+            // Function to fetch and display leagues
+            function fetchLeagues() {
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Clear loading indicator
+                        tableBody.innerHTML = '';
+                        
+                        // Log the raw API response to see its structure
+                        console.log('Raw API Response:', data);
+                        
+                        // Extract leagues from the response
+                        let leagues = [];
+                        
+                        // Handle the specific response structure from this API
+                        // Based on the API Matchcentre framework document, the grades API likely returns
+                        // an array directly or has a specific structure
+                        
+                        if (Array.isArray(data)) {
+                            console.log('Data is an array');
+                            leagues = data;
+                        } else if (data && typeof data === 'object') {
+                            // Try various possible response structures
+                            if (Array.isArray(data.grades)) {
+                                console.log('Found data.grades array');
+                                leagues = data.grades;
+                            } else if (data.result && Array.isArray(data.result)) {
+                                console.log('Found data.result array');
+                                leagues = data.result;
+                            } else if (data.data && Array.isArray(data.data)) {
+                                console.log('Found data.data array');
+                                leagues = data.data;
+                            } else {
+                                // Last resort: look for any property that contains an array of objects with gradeId
+                                console.log('Searching for arrays in response...');
+                                for (const key in data) {
+                                    if (data[key] && Array.isArray(data[key])) {
+                                        console.log(`Found array at key: ${key} with ${data[key].length} items`);
+                                        // Check first item if it has expected properties
+                                        if (data[key].length > 0) {
+                                            console.log('First item:', data[key][0]);
+                                            // If this array contains objects with the properties we need, use it
+                                            if (data[key][0] && (data[key][0].gradeId !== undefined || 
+                                                               data[key][0].grade_id !== undefined || 
+                                                               data[key][0].id !== undefined)) {
+                                                console.log(`Using array from key: ${key}`);
+                                                leagues = data[key];
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        console.log(`Found ${leagues.length} leagues in the response`);
+                        
+                        // If leagues array is empty, show a message
+                        if (leagues.length === 0) {
+                            const noDataRow = document.createElement('tr');
+                            const noDataCell = document.createElement('td');
+                            noDataCell.colSpan = 7;
+                            noDataCell.textContent = 'No leagues found in the API response. Please check the console for details.';
+                            noDataCell.style.textAlign = 'center';
+                            noDataRow.appendChild(noDataCell);
+                            tableBody.appendChild(noDataRow);
+                            console.error('No leagues found in the API response:', data);
+                            return;
+                        }
+                        
+                        // Normalize league data (handle different property names)
+                        const normalizedLeagues = leagues.map(league => {
+                            return {
+                                gradeId: league.gradeId || league.grade_id || league.id,
+                                gradeName: league.gradeName || league.grade_name || league.name,
+                                matchCount: league.matchCount || league.match_count || league.matches
+                            };
+                        });
+                        
+                        // Log normalized leagues
+                        console.log('Normalized leagues:', normalizedLeagues);
+                        
+                        // Filter out any leagues without valid IDs or names
+                        const validLeagues = normalizedLeagues.filter(league => 
+                            league.gradeId && league.gradeName
+                        );
+                        
+                        console.log(`${validLeagues.length} valid leagues after filtering`);
+                        
+                        // Use leagues in the original order from the API (removed sorting)
+                        
+                        // Add each league to the table
+                        validLeagues.forEach(league => {
+                            tableBody.appendChild(createLeagueRow(league));
+                        });
+                        
+                        // If no valid leagues were found after filtering
+                        if (validLeagues.length === 0) {
+                            const noDataRow = document.createElement('tr');
+                            const noDataCell = document.createElement('td');
+                            noDataCell.colSpan = 7;
+                            noDataCell.textContent = 'No valid leagues found for the current season.';
+                            noDataCell.style.textAlign = 'center';
+                            noDataRow.appendChild(noDataCell);
+                            tableBody.appendChild(noDataRow);
+                        }
+                    })
+                    .catch(error => {
+                        // Display error message
+                        errorMessage.textContent = `Failed to load leagues: ${error.message}`;
+                        errorContainer.style.display = 'block';
+                        
+                        // Show error in table
+                        tableBody.innerHTML = '';
+                        const errorRow = document.createElement('tr');
+                        const errorCell = document.createElement('td');
+                        errorCell.colSpan = 7;
+                        errorCell.textContent = 'Could not load leagues data. Please try again later.';
+                        errorCell.style.textAlign = 'center';
+                        errorCell.style.color = '#c62828';
+                        errorRow.appendChild(errorCell);
+                        tableBody.appendChild(errorRow);
+                        
+                        console.error('Error fetching leagues:', error);
+                    });
+            }
+            
+            // Fetch leagues when page loads
+            fetchLeagues();
+        });
+    </script>
+</body>
+</html>

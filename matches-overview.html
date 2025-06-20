@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matches Overview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #1a5276;
+            border-bottom: 2px solid #1a5276;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #1a5276;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e6f7ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Matches Overview</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Match ID</th>
+                    <th>Date</th>
+                    <th>Home Team</th>
+                    <th>Away Team</th>
+                    <th>Venue</th>
+                    <th>API Endpoint</th>
+                </tr>
+            </thead>
+            <tbody id="matches-table-body">
+                <tr class="loading">
+                    <td colspan="6">Loading matches data...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const gradeId = urlParams.get('gradeId');
+            const tableBody = document.getElementById('matches-table-body');
+
+            if (!gradeId) {
+                tableBody.innerHTML = '<tr><td colspan="6">Invalid grade ID.</td></tr>';
+                return;
+            }
+
+            const apiUrl = `https://api.resultsvault.co.uk/rv/134453/matches/?apiid=1002&seasonid=19&gradeid=${gradeId}&action=ors&maxrecs=1000&strmflg=1`;
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    tableBody.innerHTML = '';
+                    const matches = Array.isArray(data) ? data : data.result || [];
+                    matches.forEach(match => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${match.match_id}</td>
+                            <td>${match.date1}</td>
+                            <td>${match.home_name}</td>
+                            <td>${match.away_name}</td>
+                            <td>${match.venue_name}</td>
+                            <td>
+                                <a href="https://api.resultsvault.co.uk/rv/134453/matches/?apiid=1002&seasonid=19&gradeid=${match.gradeId}&action=ors&maxrecs=1000&strmflg=1">
+                                    API Endpoint
+                                </a>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    tableBody.innerHTML = `<tr><td colspan="6">Error loading matches: ${error.message}</td></tr>`;
+                });
+        });
+    </script>
+</body>
+</html>
