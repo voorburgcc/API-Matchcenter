@@ -115,3 +115,5 @@ Some URLs must be opened shortly before use to generate data via JavaScript; oth
 
 - [`/matches/{{entity_id}}/?apiid=1002&strmflg=3`](https://api.resultsvault.co.uk/rv/134453/matches/{{entity_id}}/?apiid=1002&strmflg=3)
 - [`/matches/{{entity_id}}/?apiid=1002&action=getballs&sportid=1&resultid={{RESULTID}}&inningsnumber=1`](https://api.resultsvault.co.uk/rv/134453/matches/{{entity_id}}/?apiid=1002&action=getballs&sportid=1&resultid={{RESULTID}}&inningsnumber=1)
+
+> **Note:** These API URLs are public and do not require authentication headers. Adding Authorization headers will cause CORS errors in browsers.
