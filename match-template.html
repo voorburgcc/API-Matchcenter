@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.5;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="white" opacity="0.1"/><circle cx="20" cy="20" r="1" fill="white" opacity="0.1"/><circle cx="80" cy="30" r="1.5" fill="white" opacity="0.1"/></svg>');
+        }
+        
+        .match-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        
+        .match-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+            position: relative;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .teams-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        
+        .teams-container {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .team {
+            text-align: center;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease;
+        }
+        
+        .team:hover {
+            transform: translateY(-2px);
+        }
+        
+        .team-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 0.5rem;
+        }
+        
+        .team-score {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #059669;
+            margin: 0.5rem 0;
+        }
+        
+        .vs-divider {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .match-status {
+            text-align: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .score-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+        
+        .leader-text {
+            font-size: 0.95rem;
+            color: #64748b;
+        }
+        
+        .compact-info {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .compact-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid #1e3c72;
+        }
+        
+        .compact-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .compact-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .detail-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border-left: 4px solid #1e3c72;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            color: #1e293b;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-upcoming {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+        }
+        
+        .status-live {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-completed {
+            background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%);
+            color: #7c3aed;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        
+        .actions-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .action-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+        }
+        
+        .action-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(30, 60, 114, 0.4);
+        }
+        
+        .raw-data {
+            margin-top: 2rem;
+            background: #f8fafc;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            max-width: 100%;
+        }
+        
+        .raw-data summary {
+            font-weight: 600;
+            color: #1e3c72;
+            cursor: pointer;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 16px 16px 0 0;
+            transition: all 0.2s ease;
+        }
+        
+        .raw-data summary:hover {
+            background: #f8fafc;
+        }
+        
+        .raw-data pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin: 0;
+            max-width: 100%;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .highlights-section {
+            margin: 2rem 0;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .highlight-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .highlight-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .highlight-thumbnail {
+            width: 100%;
+            height: 140px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            position: relative;
+        }
+
+        .play-button {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1e3c72;
+            font-size: 1.5rem;
+        }
+
+        .highlight-info {
+            padding: 1rem;
+        }
+
+        .highlight-title {
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .highlight-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .highlight-time {
+            font-weight: 500;
+        }
+
+        .highlight-over {
+            background: #1e3c72;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+        }
+
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-container {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .video-player {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .close-video {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .teams-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .vs-divider {
+                order: -1;
+                margin: 0 auto;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .match-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="match-content" class="loading">
+            Loading match data...
+        </div>
+    </div>
+
+    <script>
+        // Function to format Microsoft JSON date
+        function formatDate(dateString) {
+            if (!dateString) return 'Not available';
+            
+            try {
+                const match = dateString.match(/\/Date\((\d+)([+-]\d{4})?\)\//);
+                if (match) {
+                    const timestamp = parseInt(match[1]);
+                    const date = new Date(timestamp - 3600000); // Subtract 1 hour
+                    
+                    const options = {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                        timeZone: 'Europe/Berlin'
+                    };
+                    
+                    return date.toLocaleDateString('en-US', options);
+                }
+            } catch (error) {
+                console.error('Error parsing date:', error);
+            }
+            
+            return dateString;
+        }
+        
+        function formatTime(dateString) {
+            if (!dateString) return 'Not available';
+            
+            try {
+                const match = dateString.match(/\/Date\((\d+)([+-]\d{4})?\)\//);
+                if (match) {
+                    const timestamp = parseInt(match[1]);
+                    const date = new Date(timestamp - 3600000);
+                    
+                    return date.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                        timeZone: 'Europe/Berlin'
+                    });
+                }
+            } catch (error) {
+                console.error('Error parsing time:', error);
+            }
+            
+            return dateString;
+        }
+        
+        // Function to determine match status
+        function getMatchStatus(statusId) {
+            switch(statusId) {
+                case 10:
+                case 20:
+                    return { text: 'Upcoming', class: 'status-upcoming' };
+                case 30:
+                    return { text: 'Live', class: 'status-live' };
+                case 60:
+                    return { text: 'Completed', class: 'status-completed' };
+                default:
+                    return { text: 'Unknown', class: 'status-upcoming' };
+            }
+        }
+        
+        // Function to create match display
+        function createMatchDisplay(data) {
+            const status = getMatchStatus(data.status_id);
+            
+            return `
+                <div class="content">
+                    <div class="teams-section">
+                        <div class="teams-container">
+                            <div class="team">
+                                <div class="team-name">${data.home_name || 'Home Team'}</div>
+                                <div class="team-score">${data.home_score || '-'}</div>
+                            </div>
+                            <div class="vs-divider">VS</div>
+                            <div class="team">
+                                <div class="team-name">${data.away_name || 'Away Team'}</div>
+                                <div class="team-score">${data.away_score || '-'}</div>
+                            </div>
+                        </div>
+                        
+                        ${data.score_text || data.leader_text ? `
+                        <div class="match-status">
+                            ${data.score_text ? `<div class="score-text">${data.score_text}</div>` : ''}
+                            ${data.leader_text ? `<div class="leader-text">${data.leader_text}</div>` : ''}
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="compact-info">
+                        <div class="compact-item">
+                            <div class="compact-label">Status</div>
+                            <div class="compact-value">
+                                <span class="status-badge ${status.class}">
+                                    <span class="status-dot"></span>
+                                    ${status.text}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="compact-item">
+                            <div class="compact-label">Date</div>
+                            <div class="compact-value">${formatDate(data.date1).split(' at ')[0] || 'TBD'}</div>
+                        </div>
+                        <div class="compact-item">
+                            <div class="compact-label">Time</div>
+                            <div class="compact-value">${formatTime(data.date1) || 'TBD'}</div>
+                        </div>
+                        <div class="compact-item">
+                            <div class="compact-label">Venue</div>
+                            <div class="compact-value">${data.venue_name || 'TBD'}</div>
+                        </div>
+                        ${data.Round ? `
+                        <div class="compact-item">
+                            <div class="compact-label">Round</div>
+                            <div class="compact-value">${data.Round}</div>
+                        </div>
+                        ` : ''}
+                        ${data.weather ? `
+                        <div class="compact-item">
+                            <div class="compact-label">Weather</div>
+                            <div class="compact-value">${data.weather}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="details-grid">
+                        <div class="detail-card">
+                            <h3 class="card-title">📊 Match Information</h3>
+                            <div class="detail-item">
+                                <span class="detail-label">Match ID</span>
+                                <span class="detail-value">${data.match_id}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Competition</span>
+                                <span class="detail-value">${data.grade_name || 'Not specified'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Date & Time</span>
+                                <span class="detail-value">${formatDate(data.date1)}</span>
+                            </div>
+                            ${data.match_type ? `
+                            <div class="detail-item">
+                                <span class="detail-label">Format</span>
+                                <span class="detail-value">${data.match_type}</span>
+                            </div>
+                            ` : ''}
+                            ${data.balls_per_over ? `
+                            <div class="detail-item">
+                                <span class="detail-label">Balls per Over</span>
+                                <span class="detail-value">${data.balls_per_over}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="detail-card">
+                            <h3 class="card-title">🏟️ Venue & Conditions</h3>
+                            <div class="detail-item">
+                                <span class="detail-label">Venue</span>
+                                <span class="detail-value">${data.venue_name || 'Not specified'}</span>
+                            </div>
+                            ${data.venue_address ? `
+                            <div class="detail-item">
+                                <span class="detail-label">Address</span>
+                                <span class="detail-value">${data.venue_address}</span>
+                            </div>
+                            ` : ''}
+                            ${data.pitch_condition ? `
+                            <div class="detail-item">
+                                <span class="detail-label">Pitch</span>
+                                <span class="detail-value">${data.pitch_condition}</span>
+                            </div>
+                            ` : ''}
+                            ${data.toss_winner ? `
+                            <div class="detail-item">
+                                <span class="detail-label">Toss Winner</span>
+                                <span class="detail-value">${data.toss_winner}</span>
+                            </div>
+                            ` : ''}
+                            ${data.toss_decision ? `
+                            <div class="detail-item">
+                                <span class="detail-label">Toss Decision</span>
+                                <span class="detail-value">${data.toss_decision}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        ${data.MatchTeams && data.MatchTeams.length > 0 ? `
+                        <div class="detail-card">
+                            <h3 class="card-title">👥 Teams</h3>
+                            ${data.MatchTeams.map(team => `
+                                <div class="detail-item">
+                                    <span class="detail-label">${team.team_name || 'Team'}</span>
+                                    <span class="detail-value">ID: ${team.entity_id || 'N/A'}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        ` : ''}
+                        
+                        ${data.matchStreams && data.matchStreams.length > 0 ? `
+                        <div class="detail-card">
+                            <h3 class="card-title">📺 Streams</h3>
+                            ${data.matchStreams.map(stream => `
+                                <div class="detail-item">
+                                    <span class="detail-label">Stream</span>
+                                    <span class="detail-value">Available (ID: ${stream.video_id || 'N/A'})</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    ${createHighlightsSection(data)}
+                    
+                    <div class="actions-section">
+                        <a href="https://matchcentre.kncb.nl/match/134453-${data.match_id}/scorecard/" target="_blank" class="action-link">
+                            📊 View Scorecard
+                        </a>
+                        <a href="https://api.resultsvault.co.uk/rv/134453/matches/${data.match_id}/?apiid=1002&strmflg=3" target="_blank" class="action-link">
+                            🔗 API Data
+                        </a>
+                        ${data.matchStreams && data.matchStreams.length > 0 ? 
+                            `<a href="#" onclick="alert('Video stream available but requires additional authentication')" class="action-link">📹 Live Stream</a>` : 
+                            ''
+                        }
+                    </div>
+                    
+                    <details class="raw-data">
+                        <summary>🔍 Show Raw API Data</summary>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </details>
+                </div>
+                
+                <div id="videoModal" class="video-modal">
+                    <div class="video-container">
+                        <button class="close-video" onclick="closeVideo()">&times;</button>
+                        <video id="videoPlayer" class="video-player" controls>
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to create highlights section
+        function createHighlightsSection(data) {
+            // Extract highlights from API data
+            let highlights = [];
+            
+            // Check if highlights exist in the API response
+            if (data.highlights && Array.isArray(data.highlights)) {
+                highlights = data.highlights;
+            } else if (data.match_highlights && Array.isArray(data.match_highlights)) {
+                highlights = data.match_highlights;
+            } else if (data.events && Array.isArray(data.events)) {
+                // Filter events for highlights (wickets, fours, sixes)
+                highlights = data.events.filter(event => 
+                    event.event_type === 'wicket' || 
+                    event.event_type === 'four' || 
+                    event.event_type === 'six' ||
+                    event.runs_scored >= 4
+                );
+            } else {
+                // Try to find highlights in other possible locations
+                const possibleHighlights = [];
+                
+                // Look for any properties that might contain highlight data
+                Object.keys(data).forEach(key => {
+                    if (Array.isArray(data[key]) && data[key].length > 0) {
+                        const item = data[key][0];
+                        if (item && (item.event_type || item.runs_scored || item.wicket_type)) {
+                            possibleHighlights.push(...data[key]);
+                        }
+                    }
+                });
+                
+                highlights = possibleHighlights;
+            }
+
+            if (highlights.length === 0) return '';
+
+            return `
+                <div class="highlights-section">
+                    <h3 class="card-title">🎬 Match Highlights</h3>
+                    <div class="highlights-grid">
+                        ${highlights.map((highlight, index) => `
+                            <div class="highlight-item" onclick="playHighlight('${highlight.id || index}', '${getHighlightTitle(highlight)}')">
+                                <div class="highlight-thumbnail">
+                                    ${getHighlightIcon(getHighlightType(highlight))}
+                                    <div class="play-button">▶</div>
+                                </div>
+                                <div class="highlight-info">
+                                    <div class="highlight-title">${getHighlightTitle(highlight)}</div>
+                                    <div class="highlight-details">
+                                        <span class="highlight-time">${highlight.time || highlight.timestamp || 'N/A'}</span>
+                                        <span class="highlight-over">${getOverInfo(highlight)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to determine highlight type from API data
+        function getHighlightType(highlight) {
+            if (highlight.event_type) return highlight.event_type;
+            if (highlight.wicket_type) return 'wicket';
+            if (highlight.runs_scored >= 6) return 'six';
+            if (highlight.runs_scored >= 4) return 'four';
+            return 'event';
+        }
+
+        // Function to generate highlight title from API data
+        function getHighlightTitle(highlight) {
+            if (highlight.title) return highlight.title;
+            if (highlight.event_type === 'wicket') {
+                return `Wicket - ${highlight.wicket_type || 'Dismissed'}`;
+            }
+            if (highlight.runs_scored >= 6) {
+                return `Six - ${highlight.runs_scored} runs`;
+            }
+            if (highlight.runs_scored >= 4) {
+                return `Four - ${highlight.runs_scored} runs`;
+            }
+            if (highlight.description) return highlight.description;
+            return `Event - ${highlight.event_type || 'Highlight'}`;
+        }
+
+        // Function to get over information from API data
+        function getOverInfo(highlight) {
+            if (highlight.over && highlight.ball) {
+                return `Over ${highlight.over}.${highlight.ball}`;
+            }
+            if (highlight.over_number) {
+                return `Over ${highlight.over_number}`;
+            }
+            if (highlight.ball_number) {
+                return `Ball ${highlight.ball_number}`;
+            }
+            return 'N/A';
+        }
+
+        // Function to get highlight icon based on type
+        function getHighlightIcon(type) {
+            switch(type) {
+                case 'wicket': return '🏏';
+                case 'six': return '6️⃣';
+                case 'four': return '4️⃣';
+                default: return '🎬';
+            }
+        }
+
+        // Function to play highlight video
+        function playHighlight(highlightId, title) {
+            const modal = document.getElementById('videoModal');
+            const player = document.getElementById('videoPlayer');
+            
+            // In real implementation, you would fetch the actual video URL from API
+            // For demo purposes, using a placeholder
+            const videoUrl = `https://sample-videos.com/zip/10/mp4/SampleVideo_720x480_1mb.mp4`;
+            
+            player.src = videoUrl;
+            modal.style.display = 'flex';
+            player.play();
+        }
+
+        // Function to close video modal
+        function closeVideo() {
+            const modal = document.getElementById('videoModal');
+            const player = document.getElementById('videoPlayer');
+            
+            player.pause();
+            player.src = '';
+            modal.style.display = 'none';
+        }
+
+        // Close video when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('videoModal');
+            if (event.target === modal) {
+                closeVideo();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const matchId = urlParams.get('matchId');
+            const contentDiv = document.getElementById('match-content');
+
+            if (!matchId) {
+                contentDiv.innerHTML = '<div class="error">Invalid match ID provided.</div>';
+                return;
+            }
+
+            const apiUrl = `https://api.resultsvault.co.uk/rv/134453/matches/${matchId}/?apiid=1002&strmflg=3`;
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Handle different response structures
+                    let matchData = data;
+                    if (Array.isArray(data) && data.length > 0) {
+                        matchData = data[0];
+                    } else if (data.result) {
+                        matchData = Array.isArray(data.result) ? data.result[0] : data.result;
+                    }
+                    
+                    contentDiv.innerHTML = createMatchDisplay(matchData);
+                })
+                .catch(error => {
+                    contentDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Error Loading Match Data</h3>
+                            <p>Could not load match information: ${error.message}</p>
+                            <p>This might be because:</p>
+                            <ul>
+                                <li>The match ID is invalid</li>
+                                <li>The API endpoint needs to be "warmed up" first</li>
+                                <li>There's a temporary network issue</li>
+                            </ul>
+                            <p><a href="javascript:location.reload()" style="color: inherit; text-decoration: underline;">🔄 Try reloading the page</a></p>
+                        </div>
+                    `;
+                });
+        });
+    </script>
+</body>
+</html>

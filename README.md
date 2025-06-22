@@ -44,8 +44,12 @@ This framework can be adapted for any cricket association using the ResultVault 
 | Seasons                        | [`https://api.resultsvault.co.uk/rv/134453/seasons/?apiid=1002`](https://api.resultsvault.co.uk/rv/134453/seasons/?apiid=1002) |
 | Grades                         | [`https://api.resultsvault.co.uk/rv/134453/grades/?apiid=1002&seasonId=19`](https://api.resultsvault.co.uk/rv/134453/grades/?apiid=1002&seasonId=19) |
 | Matches (Pre-game Info / Squad)| [`https://api.resultsvault.co.uk/rv/134453/matches/?apiid=1002&seasonid=19&gradeid=GRADEID&action=ors&maxrecs=1000&strmflg=1`](https://api.resultsvault.co.uk/rv/134453/matches/?apiid=1002&seasonid=19&gradeid=GRADEID&action=ors&maxrecs=1000&strmflg=1) |
+| Match detail                   | [`https://api.resultsvault.co.uk/rv/134453/matches/7326104/?apiid=1002&strmflg=3](https://api.resultsvault.co.uk/rv/134453/matches/7326104/?apiid=1002&strmflg=3) |
 | Match Stream Highlights        | [`https://api.resultsvault.co.uk/rv/134453/matches/{{entity_id}}/?apiid=1002&strmflg=3`](https://api.resultsvault.co.uk/rv/134453/matches/{{entity_id}}/?apiid=1002&strmflg=3) |
 | Ball-by-Ball                   | [`https://api.resultsvault.co.uk/rv/134453/matches/{{entity_id}}/?apiid=1002&action=getballs&sportid=1&resultid=RESULTID&inningsnumber=1`](https://api.resultsvault.co.uk/rv/134453/matches/{{entity_id}}/?apiid=1002&action=getballs&sportid=1&resultid=RESULTID&inningsnumber=1) |
+| Score Worm Graph               | [`https://resultsvault.co.uk/common/pages/public/rv/cricket/ScoreWorm.aspx?matchid={{MATCHID}}&inningno={{INNINGNO}}&fl=0&sel=0`](https://resultsvault.co.uk/common/pages/public/rv/cricket/ScoreWorm.aspx?matchid={{MATCHID}}&inningno={{INNINGNO}}&fl=0&sel=0) |
+| Manhattan Graph                | [`https://resultsvault.co.uk/common/pages/public/rv/cricket/Manhattan.aspx?matchid={{MATCHID}}&inningno={{INNINGNO}}&fl=0&sel=0`](https://resultsvault.co.uk/common/pages/public/rv/cricket/Manhattan.aspx?matchid={{MATCHID}}&inningno={{INNINGNO}}&fl=0&sel=0) |
+| Wagon Wheel Graph              | [`https://resultsvault.co.uk/common/pages/public/rv/cricket/WagonWheel.aspx?matchid={{MATCHID}}&inningno={{INNINGNO}}&fl=0&entityid={{ENTITY_ID}}&save=0&playerid=0&type=2&redirect=1&hand=R`](https://resultsvault.co.uk/common/pages/public/rv/cricket/WagonWheel.aspx?matchid={{MATCHID}}&inningno={{INNINGNO}}&fl=0&entityid={{ENTITY_ID}}&save=0&playerid=0&type=2&redirect=1&hand=R) |
 | Breaks                         | [`https://api.resultsvault.co.uk/rv/lookup/?apiid=1002&sportid=1&lookupid=MATCH_BREAK_TYPES`](https://api.resultsvault.co.uk/rv/lookup/?apiid=1002&sportid=1&lookupid=MATCH_BREAK_TYPES) |
 
 > **Note:** These API URLs are public and do not require an API token.
@@ -60,7 +64,17 @@ This framework can be adapted for any cricket association using the ResultVault 
 | `apiid=1002`      | KNCB contact                     |
 | `seasonId=19`     | Year 2025                        |
 | `inningsnumber=1` | Innings number (1 or 2)          |
+| `MATCHID`         | Match ID for graph visualizations |
+| `INNINGNO`        | Innings number for graphs (1 or 2) |
+| `ENTITY_ID`       | Entity ID for wagon wheel graphs |
+| `RESULTID`        | Result ID found in match data     |
+
+> **Note:** The `result_id` can be found in the match data from endpoints like:  
+> [`https://api.resultsvault.co.uk/rv/134453/matches/?apiid=1002&seasonid=19&gradeid=71374&action=ors&maxrecs=1000&strmflg=1`](https://api.resultsvault.co.uk/rv/134453/matches/?apiid=1002&seasonid=19&gradeid=71374&action=ors&maxrecs=1000&strmflg=1)
 at least one result_id found: 24965458
+
+> **Graph Visualization Note:** For Score Worm and Manhattan graphs, using `inningno=1` will plot both innings in one graph for comparison.
+
 ---
 
 ## grade_id and entity_id Mapping

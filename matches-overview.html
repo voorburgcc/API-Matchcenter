@@ -47,28 +47,120 @@
                 <tr>
                     <th>Match ID</th>
                     <th>Date</th>
+                    <th>Time</th>
                     <th>Home Team</th>
                     <th>Away Team</th>
                     <th>Venue</th>
-                    <th>API Endpoint</th>
+                    <th>Match API</th>
+                    <th>Match Template</th>
                 </tr>
             </thead>
             <tbody id="matches-table-body">
                 <tr class="loading">
-                    <td colspan="6">Loading matches data...</td>
+                    <td colspan="8">Loading matches data...</td>
                 </tr>
             </tbody>
         </table>
     </div>
 
     <script>
+        // Function to parse Microsoft JSON date format and return human readable date string
+        function formatMicrosoftDate(dateString) {
+            if (!dateString) return 'No date';
+            
+            try {
+                // Microsoft JSON date format: /Date(1234567890000+0100)/ or /Date(1234567890000-0500)/
+                const match = dateString.match(/\/Date\((\d+)([+-]\d{4})?\)\//);
+                if (match) {
+                    const timestamp = parseInt(match[1]);
+                    
+                    // Subtract 2 hours (1 * 60 * 60 * 1000 = 3600000 milliseconds)
+                    let date = new Date(timestamp - 3600000);
+                    
+                    // Format as: "Mon, Jan 15, 2025" (date only)
+                    const options = {
+                        weekday: 'short',
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        timeZone: 'Europe/Berlin'
+                    };
+                    
+                    return date.toLocaleDateString('en-US', options);
+                } else {
+                    // Try parsing as regular date string
+                    const date = new Date(dateString);
+                    if (!isNaN(date.getTime())) {
+                        // Subtract 2 hours and use CEST timezone
+                        const adjustedDate = new Date(date.getTime() - 7200000);
+                        const options = {
+                            weekday: 'short',
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            timeZone: 'Europe/Berlin'
+                        };
+                        return adjustedDate.toLocaleDateString('en-US', options);
+                    }
+                }
+            } catch (error) {
+                console.error('Error parsing date:', error);
+            }
+            
+            return dateString; // Return original if parsing fails
+        }
+
+        // Function to parse Microsoft JSON date format and return time string
+        function formatMicrosoftTime(dateString) {
+            if (!dateString) return 'No time';
+            
+            try {
+                // Microsoft JSON date format: /Date(1234567890000+0100)/ or /Date(1234567890000-0500)/
+                const match = dateString.match(/\/Date\((\d+)([+-]\d{4})?\)\//);
+                if (match) {
+                    const timestamp = parseInt(match[1]);
+                    
+                    // Subtract 2 hours (1 * 60 * 60 * 1000 = 3600000 milliseconds)
+                    let date = new Date(timestamp - 3600000);
+                    
+                    // Format as: "14:30" (time only, 24-hour format)
+                    const options = {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                        timeZone: 'Europe/Berlin'
+                    };
+                    
+                    return date.toLocaleTimeString('en-US', options);
+                } else {
+                    // Try parsing as regular date string
+                    const date = new Date(dateString);
+                    if (!isNaN(date.getTime())) {
+                        // Subtract 2 hours and use CEST timezone
+                        const adjustedDate = new Date(date.getTime() - 7200000);
+                        const options = {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false,
+                            timeZone: 'Europe/Berlin'
+                        };
+                        return adjustedDate.toLocaleTimeString('en-US', options);
+                    }
+                }
+            } catch (error) {
+                console.error('Error parsing time:', error);
+            }
+            
+            return dateString; // Return original if parsing fails
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const gradeId = urlParams.get('gradeId');
             const tableBody = document.getElementById('matches-table-body');
 
             if (!gradeId) {
-                tableBody.innerHTML = '<tr><td colspan="6">Invalid grade ID.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="8">Invalid grade ID.</td></tr>';
                 return;
             }
 
@@ -87,14 +179,20 @@
                     matches.forEach(match => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${match.match_id}</td>
-                            <td>${match.date1}</td>
+                            <td><a href="https://matchcentre.kncb.nl/match/134453-${match.match_id}/scorecard/" target="_blank">${match.match_id}</a></td>
+                            <td>${formatMicrosoftDate(match.date1)}</td>
+                            <td>${formatMicrosoftTime(match.date1)}</td>
                             <td>${match.home_name}</td>
                             <td>${match.away_name}</td>
                             <td>${match.venue_name}</td>
                             <td>
-                                <a href="https://api.resultsvault.co.uk/rv/134453/matches/?apiid=1002&seasonid=19&gradeid=${match.gradeId}&action=ors&maxrecs=1000&strmflg=1">
-                                    API Endpoint
+                                <a href="https://api.resultsvault.co.uk/rv/134453/matches/${match.match_id}/?apiid=1002&strmflg=3" target="_blank">
+                                    Match API
+                                </a>
+                            </td>
+                            <td>
+                                <a href="match-template.html?matchId=${match.match_id}" target="_blank">
+                                    ${match.home_name}-${match.away_name}
                                 </a>
                             </td>
                         `;
@@ -102,7 +200,7 @@
                     });
                 })
                 .catch(error => {
-                    tableBody.innerHTML = `<tr><td colspan="6">Error loading matches: ${error.message}</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="8">Error loading matches: ${error.message}</td></tr>`;
                 });
         });
     </script>
