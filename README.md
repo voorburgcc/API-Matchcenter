@@ -29,6 +29,8 @@ This framework can be adapted for any cricket association using the ResultVault 
 
 ---
 
+
+
 # Overview of Public ResultVault API URLs
 
 ## Matchcentre Match URL
@@ -52,7 +54,6 @@ This framework can be adapted for any cricket association using the ResultVault 
 | Wagon Wheel Graph              | [`https://resultsvault.co.uk/common/pages/public/rv/cricket/WagonWheel.aspx?matchid={{MATCHID}}&inningno={{INNINGNO}}&fl=0&entityid={{ENTITY_ID}}&save=0&playerid=0&type=2&redirect=1&hand=R`](https://resultsvault.co.uk/common/pages/public/rv/cricket/WagonWheel.aspx?matchid={{MATCHID}}&inningno={{INNINGNO}}&fl=0&entityid={{ENTITY_ID}}&save=0&playerid=0&type=2&redirect=1&hand=R) |
 | Breaks                         | [`https://api.resultsvault.co.uk/rv/lookup/?apiid=1002&sportid=1&lookupid=MATCH_BREAK_TYPES`](https://api.resultsvault.co.uk/rv/lookup/?apiid=1002&sportid=1&lookupid=MATCH_BREAK_TYPES) |
 
-> **Note:** These API URLs are public and do not require an API token.
 
 ---
 
